@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hogwarts Quiz App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b, #7c2d92, #be185d);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .sparkle {
+            color: #fbbf24;
+            font-size: 2rem;
+            margin: 0 1rem;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #c4b5fd;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-card {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            margin-bottom: 3rem;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .category-card {
+            background: linear-gradient(135deg, rgba(124, 45, 146, 0.5), rgba(67, 56, 202, 0.5));
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .category-card:hover {
+            border-color: rgba(251, 191, 36, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px rgba(251, 191, 36, 0.2);
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .category-description {
+            color: #c4b5fd;
+            margin-bottom: 1.5rem;
+        }
+
+        .start-btn {
+            background: #fbbf24;
+            color: black;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: #fcd34d;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            color: #c4b5fd;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            display: inline-block;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: white;
+        }
+
+        .quiz-title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-info {
+            color: #c4b5fd;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .progress-bar {
+            background: rgba(124, 45, 146, 0.5);
+            border-radius: 1rem;
+            height: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, rgba(124, 45, 146, 0.5), rgba(67, 56, 202, 0.5));
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .question {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .options {
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            background: rgba(124, 45, 146, 0.3);
+            color: white;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .option:hover:not(:disabled) {
+            border-color: rgba(251, 191, 36, 0.5);
+            background: rgba(124, 45, 146, 0.5);
+        }
+
+        .option.selected {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.2);
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .option:disabled {
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 2px solid;
+            margin-bottom: 1.5rem;
+        }
+
+        .feedback.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .feedback.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .feedback-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .feedback.correct .feedback-text {
+            color: #6ee7b7;
+        }
+
+        .feedback.incorrect .feedback-text {
+            color: #fca5a5;
+        }
+
+        .explanation {
+            color: #c4b5fd;
+            font-size: 1.125rem;
+        }
+
+        .action-center {
+            text-align: center;
+        }
+
+        .submit-btn, .next-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 2rem;
+            font-weight: bold;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: #fbbf24;
+            color: black;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #fcd34d;
+            transform: scale(1.05);
+        }
+
+        .submit-btn:disabled {
+            background: #6b7280;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .next-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .next-btn:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        .results-card {
+            border-radius: 2rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .results-card.gryffindor {
+            background: linear-gradient(135deg, #dc2626, #eab308);
+        }
+
+        .results-card.hufflepuff {
+            background: linear-gradient(135deg, #eab308, #000000);
+        }
+
+        .results-card.ravenclaw {
+            background: linear-gradient(135deg, #2563eb, #9ca3af);
+        }
+
+        .results-card.slytherin {
+            background: linear-gradient(135deg, #059669, #6b7280);
+        }
+
+        .trophy-icon {
+            font-size: 5rem;
+            color: #fcd34d;
+            margin-bottom: 1.5rem;
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .score-message {
+            font-size: 1.5rem;
+            color: #fcd34d;
+            margin-bottom: 2rem;
+        }
+
+        .house-section {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .house-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .house-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fcd34d;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .star {
+            font-size: 2rem;
+            color: #6b7280;
+        }
+
+        .star.filled {
+            color: #fbbf24;
+        }
+
+        .restart-btn {
+            background: #fbbf24;
+            color: black;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 2rem;
+            font-weight: bold;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .restart-btn:hover {
+            background: #fcd34d;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quiz-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Category Selection Screen -->
+        <div id="categoryScreen">
+            <div class="header">
+                <div class="logo">
+                    <span class="sparkle">✨</span>
+                    <h1 class="title">Hogwarts Quiz</h1>
+                    <span class="sparkle">✨</span>
+                </div>
+                <p class="subtitle">Test your knowledge of the wizarding world!</p>
+                
+                <div class="welcome-card">
+                    <div class="welcome-icon">📚</div>
+                    <p style="font-size: 1.125rem; color: #c4b5fd;">
+                        Welcome to Hogwarts! Choose a category below to begin your magical quiz journey. 
+                        Each quiz contains 3 questions with instant feedback and explanations.
+                    </p>
+                </div>
+            </div>
+
+            <div class="categories-grid">
+                <div class="category-card" onclick="startQuiz('spells')">
+                    <div class="category-icon">⚡</div>
+                    <h3 class="category-title">Spells & Charms</h3>
+                    <p class="category-description">Test your knowledge of magical spells</p>
+                    <button class="start-btn">Start Quiz</button>
+                </div>
+                
+                <div class="category-card" onclick="startQuiz('houses')">
+                    <div class="category-icon">🏰</div>
+                    <h3 class="category-title">Hogwarts Houses</h3>
+                    <p class="category-description">Learn about the four houses</p>
+                    <button class="start-btn">Start Quiz</button>
+                </div>
+                
+                <div class="category-card" onclick="startQuiz('characters')">
+                    <div class="category-icon">👥</div>
+                    <h3 class="category-title">Characters</h3>
+                    <p class="category-description">Quiz about magical characters</p>
+                    <button class="start-btn">Start Quiz</button>
+                </div>
+                
+                <div class="category-card" onclick="startQuiz('lore')">
+                    <div class="category-icon">📚</div>
+                    <h3 class="category-title">Magical Lore</h3>
+                    <p class="category-description">Deep wizarding world knowledge</p>
+                    <button class="start-btn">Start Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="hidden">
+            <div class="quiz-header">
+                <a href="#" class="back-btn" onclick="goHome()">← Back to Categories</a>
+                <h1 class="quiz-title" id="quizTitle">Quiz</h1>
+                <div class="quiz-info">
+                    <span id="questionInfo">Question 1 of 3</span>
+                    <span id="scoreInfo">Score: 0/0</span>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 33%;"></div>
+            </div>
+
+            <div class="question-card">
+                <h2 class="question" id="questionText">Question will appear here</h2>
+                
+                <div class="options" id="optionsContainer">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+
+                <div id="feedbackContainer" class="hidden">
+                    <!-- Feedback will be populated by JavaScript -->
+                </div>
+
+                <div class="action-center">
+                    <button id="submitBtn" class="submit-btn" onclick="submitAnswer()" disabled>
+                        Submit Answer
+                    </button>
+                    <button id="nextBtn" class="next-btn hidden" onclick="nextQuestion()">
+                        Next Question
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="hidden">
+            <div class="results-card" id="resultsCard">
+                <div class="trophy-icon">🏆</div>
+                <h2 class="completion-title">Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">0/3</div>
+                <p class="score-message" id="scoreMessage">Keep practicing!</p>
+                
+                <div class="house-section">
+                    <h3 class="house-title">🏆 You've been sorted into:</h3>
+                    <div class="house-name" id="houseName">Gryffindor</div>
+                    <div class="stars" id="starsContainer">
+                        <!-- Stars will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <button class="restart-btn" onclick="goHome()">
+                    🔄 Try Another Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = {
+            spells: [
+                {
+                    question: "What spell is used to disarm an opponent?",
+                    options: ["Expelliarmus", "Stupefy", "Protego", "Petrificus Totalus"],
+                    correct: 0,
+                    explanation: "Expelliarmus is the Disarming Charm, forcing the target to release whatever they're holding."
+                },
+                {
+                    question: "Which spell creates light at the tip of a wand?",
+                    options: ["Alohomora", "Lumos", "Nox", "Accio"],
+                    correct: 1,
+                    explanation: "Lumos creates a bright light, while Nox extinguishes it."
+                },
+                {
+                    question: "What is the incantation for the Killing Curse?",
+                    options: ["Crucio", "Imperio", "Avada Kedavra", "Sectumsempra"],
+                    correct: 2,
+                    explanation: "Avada Kedavra is one of the three Unforgivable Curses and causes instant death."
+                }
+            ],
+            houses: [
+                {
+                    question: "Which house values bravery and courage above all?",
+                    options: ["Hufflepuff", "Ravenclaw", "Slytherin", "Gryffindor"],
+                    correct: 3,
+                    explanation: "Gryffindor house values courage, bravery, nerve, and chivalry."
+                },
+                {
+                    question: "What animal represents Ravenclaw house?",
+                    options: ["Eagle", "Raven", "Lion", "Badger"],
+                    correct: 0,
+                    explanation: "Despite the name, Ravenclaw's symbol is actually an eagle, not a raven."
+                },
+                {
+                    question: "Who was the founder of Slytherin house?",
+                    options: ["Godric Gryffindor", "Helga Hufflepuff", "Rowena Ravenclaw", "Salazar Slytherin"],
+                    correct: 3,
+                    explanation: "Salazar Slytherin was one of the four founders of Hogwarts School."
+                }
+            ],
+            characters: [
+                {
+                    question: "What is Hermione Granger's middle name?",
+                    options: ["Jane", "Jean", "Joan", "June"],
+                    correct: 1,
+                    explanation: "Hermione Jean Granger is known for her intelligence and magical abilities."
+                },
+                {
+                    question: "Who killed Dumbledore?",
+                    options: ["Voldemort", "Bellatrix Lestrange", "Severus Snape", "Draco Malfoy"],
+                    correct: 2,
+                    explanation: "Severus Snape killed Dumbledore, though it was planned between them."
+                },
+                {
+                    question: "What is Voldemort's real name?",
+                    options: ["Tom Marvolo Riddle", "Tom Morfin Riddle", "Tom Martin Riddle", "Tom Marcus Riddle"],
+                    correct: 0,
+                    explanation: "Tom Marvolo Riddle is an anagram of 'I am Lord Voldemort'."
+                }
+            ],
+            lore: [
+                {
+                    question: "How many staircases are there in Hogwarts?",
+                    options: ["142", "154", "136", "148"],
+                    correct: 0,
+                    explanation: "Hogwarts has 142 staircases, many of which move and change."
+                },
+                {
+                    question: "What platform do students use to board the Hogwarts Express?",
+                    options: ["Platform 9", "Platform 10", "Platform 9¾", "Platform 8½"],
+                    correct: 2,
+                    explanation: "Platform 9¾ at King's Cross Station is the magical platform for the Hogwarts Express."
+                },
+                {
+                    question: "What are the three cores commonly used in Ollivander's wands?",
+                    options: ["Phoenix feather, Dragon heartstring, Unicorn hair", "Phoenix feather, Griffin claw, Dragon scale", "Dragon heartstring, Unicorn tail, Phoenix wing", "Basilisk fang, Phoenix feather, Dragon claw"],
+                    correct: 0,
+                    explanation: "Ollivander uses phoenix feather, dragon heartstring, and unicorn hair as the three main wand cores."
+                }
+            ]
+        };
+
+        const categories = {
+            spells: { name: 'Spells & Charms', icon: '⚡' },
+            houses: { name: 'Hogwarts Houses', icon: '🏰' },
+            characters: { name: 'Characters', icon: '👥' },
+            lore: { name: 'Magical Lore', icon: '📚' }
+        };
+
+        // Game state
+        let currentCategory = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let showingFeedback = false;
+
+        function startQuiz(category) {
+            currentCategory = category;
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            showingFeedback = false;
+
+            document.getElementById('categoryScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+
+            document.getElementById('quizTitle').textContent = categories[category].name + ' Quiz';
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const questionData = questions[currentCategory][currentQuestionIndex];
+            const totalQuestions = questions[currentCategory].length;
+            
+            // Update header info
+            document.getElementById('questionInfo').textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+            document.getElementById('scoreInfo').textContent = `Score: ${score}/${showingFeedback && selectedAnswer === questionData.correct ? score : Math.max(0, currentQuestionIndex)}`;
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Load question
+            document.getElementById('questionText').textContent = questionData.question;
+            
+            // Load options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            questionData.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.innerHTML = `<span style="font-weight: bold; margin-right: 0.75rem;">${String.fromCharCode(65 + index)}.</span>${option}`;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            // Reset UI state
+            document.getElementById('feedbackContainer').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('submitBtn').disabled = true;
+            
+            selectedAnswer = null;
+            showingFeedback = false;
+        }
+
+        function selectAnswer(answerIndex) {
+            if (showingFeedback) return;
+            
+            selectedAnswer = answerIndex;
+            
+            // Update button styles
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                option.classList.remove('selected');
+                if (index === answerIndex) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswer === null || showingFeedback) return;
+            
+            showingFeedback = true;
+            const questionData = questions[currentCategory][currentQuestionIndex];
+            const isCorrect = selectedAnswer === questionData.correct;
+            
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Update option styles
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                option.disabled = true;
+                if (index === questionData.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Show feedback
+            const feedbackContainer = document.getElementById('feedbackContainer');
+            feedbackContainer.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackContainer.innerHTML = `
+                <div class="feedback-header">
+                    <span class="feedback-icon">${isCorrect ? '✅' : '❌'}</span>
+                    <span class="feedback-text">${isCorrect ? 'Correct!' : 'Incorrect!'}</span>
+                </div>
+                <p class="explanation">${questionData.explanation}</p>
+            `;
+            feedbackContainer.classList.remove('hidden');
+            
+            // Update UI
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('nextBtn').classList.remove('hidden');
+            
+            const isLastQuestion = currentQuestionIndex >= questions[currentCategory].length - 1;
+            document.getElementById('nextBtn').textContent = isLastQuestion ? 'View Results' : 'Next Question';
+            
+            // Update score display
+            document.getElementById('scoreInfo').textContent = `Score: ${score}/${currentQuestionIndex + 1}`;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions[currentCategory].length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            
+            const totalQuestions = questions[currentCategory].length;
+            const percentage = (score / totalQuestions) * 100;
+            
+            // Set final score
+            document.getElementById('finalScore').textContent = `${score}/${totalQuestions}`;
+            
+            // Set score message
+            let message = "Keep practicing! 📚 Every wizard starts somewhere!";
+            if (percentage >= 90) message = "Outstanding! ⭐ You're a true wizard!";
+            else if (percentage >= 70) message = "Excellent! 🔥 You know your magic well!";
+            else if (percentage >= 50) message = "Good work! ⚡ Keep studying those spellbooks!";
+            
+            document.getElementById('scoreMessage').textContent = message;
+            
+            // Determine house
+            let house = "Slytherin";
+            if (percentage >= 90) house = "Ravenclaw";
+            else if (percentage >= 70) house = "Gryffindor";
+            else if (percentage >= 50) house = "Hufflepuff";
+            
+            document.getElementById('houseName').textContent = house + "!";
+            document.getElementById('resultsCard').className = `results-card ${house.toLowerCase()}`;
+            
+            // Set stars
+            const starsContainer = document.getElementById('starsContainer');
+            const starCount = Math.floor((percentage / 100) * 5);
+            starsContainer.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('span');
+                star.className = `star ${i < starCount ? 'filled' : ''}`;
+                star.textContent = '⭐';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function goHome() {
+            document.getElementById('categoryScreen').classList.remove('hidden');
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
